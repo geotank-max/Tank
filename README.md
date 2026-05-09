@@ -1,2 +1,0 @@
-# Tank
-Class project 
