@@ -1,0 +1,6 @@
+Flask
+matplotlib
+oracledb
+pandas
+python-dotenv
+Werkzeug

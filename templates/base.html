@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ExpenseVault{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+</head>
+<body>
+
+<nav>
+    <div class="nav-inner">
+        <a href="{{ url_for('home') }}" class="nav-logo">
+            <div class="logo-gem">💎</div>
+            <span class="logo-name">Expense <em>Vault</em></span>
+        </a> 
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}" class="{{ 'active' if request.endpoint == 'home' else '' }}">Dashboard</a>
+            <a href="{{ url_for('all_expenses') }}" class="{{ 'active' if request.endpoint == 'all_expenses' else '' }}">All Expenses</a>
+            
+            {% if session.get('role_id') in [1, 2, 21] %}
+                <a href="{{ url_for('add_expense') }}" class="nav-add">Add Expenses</a>
+            {% endif %}
+
+            {% if session.get('role_id') in [21,1] %}
+                <span style="color: #252A3D; padding: 0 5px;">|</span>
+                <a href="{{ url_for('manager_dashboard') }}" class="{{ 'active' if request.endpoint == 'manager_dashboard' else '' }}" style="color: #2DD4BF;">Manager Panel</a>
+                <a href="{{ url_for('manage_categories') }}" class="{{ 'active' if request.endpoint == 'manage_categories' else '' }}" style="color: #60A5FA;">Categories</a>
+            {% endif %}
+
+            {% if session.get('role_id') == 1 %}
+                <span style="color: #252A3D; padding: 0 5px;">|</span>
+                <a href="{{ url_for('admin_manage_users') }}" style="color: #FF5470; font-weight: bold;" class="{{ 'active' if request.endpoint == 'admin_manage_users' else '' }}">
+                    🛡️ Admin Control Suite
+                </a>
+            {% endif %}            
+            </div>
+
+        <div class="user-info">
+            {% if session.get('user_id') %}
+                <span class="nav-user">
+                    Hello, {{ session.get('username') }}
+                </span>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    Logout
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="login-btn">
+                    Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<main class="main">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">
+          {% if cat == 'success' %}✓{% elif cat == 'error' %}✗{% else %}ℹ{% endif %}
+          {{ msg }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+    
+</body>
+</html>

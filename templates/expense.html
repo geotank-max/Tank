@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — ExpenseVault{% endblock %}
+
+{% block extra_css %}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>Overview</h1>
+    <p>Your spending snapshot at a glance</p>
+</div>
+
+{% if count == 0 %}
+  <div class="empty-state">
+    <div style="font-size:3rem">📊</div>
+    <h2>No expenses yet</h2>
+    <p>Add your first expense to see your dashboard come to life.</p>
+    <a href="{{ url_for('add_expense') }}" class="btn btn-primary">＋ Add your first expense</a>
+  </div>
+{% else %}
+
+  <!-- ── Stat cards ─────────────────────────────────── -->
+<div class="stats-row">
+    <div class="stat-card" style="text-align: center">
+        
+        <div class="card-lable" style="font-size: large; font-weight: 700">Total Spent</div>
+        <div class="stat-value accent" style="color: #2DD4BF;">${{ "%.2f"|format(total) }}</div>
+    </div>
+    <div class="stat-card" style="text-align: center">
+        <div class="card-lable" style="font-size: large; font-weight: 700">Total Entries</div>
+        <div class="stat-value accent" style="color: #60A5FA;">{{ count }}</div>
+    </div>
+    <div class="stat-card" style="text-align: center">
+        <div class="card-lable" style="font-size: large; font-weight: 700">Average Expense</div>
+        <div class="stat-value accent" style="color: #2DD4BF;">${{ "%.2f"|format(average) }}</div>
+    </div>
+    <div class="stat-card" style="text-align: center">
+        <div class="card-lable" style="font-size: large; font-weight: 700">Top category</div>
+        <div class="stat-value accent" style="font-size: 1.2rem; margin-top:.15rem; color: #FFBC42;">{{top_category }}</div>
+    </div>
+</div>
+
+<!-- ── Pie + Monthly side by side ────────────────── -->
+<div class="charts-row">
+
+    <!-- Left card -->
+    <div class="chart-card">
+        <div class="card-lable">Expense Distribution</div>
+        {% if pie_chart %}
+            <img src="{{ url_for('static', filename=pie_chart) }}">
+        {% else %}
+            <p style="color: var(--muted); text-align:center; padding:2rem;">No chart data</p>
+        {% endif %}
+    </div>
+    
+    <!-- Right card -->
+    <div class="chart-card">
+
+        <div class="card-label">Monthly Bar</div>
+
+        <div class="card-lable">Monthly Bar</div>
+        {% if monthly_line %}
+            <img src="{{ url_for('static', filename=monthly_line) }}">
+        {% else %}
+            <p style="color: var(--muted); text-align:center; padding:2rem;">No chart data</p>
+        {% endif %}
+
+        <hr class="chart-divider">
+
+        <div class="card-lable">Category chart</div>
+        {% if category_chart %}
+            <img src="{{ url_for('static', filename=category_chart) }}">
+        {% else %}
+            <p style="color: var(--muted); text-align:center; padding:2rem;">No chart data</p>
+        {% endif %}
+
+    </div>
+
+</div>
+
+  <!-- ── Recent expenses table ─────────────────────── -->
+<div class="recent-card">
+    <div class="recent-header">
+        <h2 style="color: white;">Recent Expenses</h2>
+        <a href = "{{ url_for('all_expenses') }}" class="btn btn-ghost btn-sm">View all →</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if recent %}
+                {% for e in recent %}
+                <tr>
+                    <td>
+                        <span class="badge" 
+                            style="background-color: {{ e.get('CATEGORY_COLOR', e.get('category_color', '#6B7089')) }}; 
+                                    color: #181533; 
+                                    padding: 4px 10px; 
+                                    border-radius: 20px; 
+                                    font-size: 0.8rem; 
+                                    font-weight: bold; 
+                                    display: inline-block;">
+                            {{ e.get('CATEGORY_NAME', e.get('category_name')) }}
+                        </span>
+                    </td>
+                    <td class="amount-cell">${{ "%.2f"|format(e.get('AMOUNT', e.get('amount', 0))|float) }}</td>
+                    <td >{{ e.get('DESCRIPTION', e.get('description', '')) }}</td>
+                    <td class="mono">{{ e.get('EXPENSE_DATE', e.get('expense_date', '')) }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center; color: #6B7089; padding: 20px;">
+                    No recent expense found. Your transaction history will show up here!
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

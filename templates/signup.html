@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Sign Up - Expense Vault</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#0B0E1A;
+            color:#E4E8F5;
+            font-family:'Space Grotesk', sans-serif;
+            min-height:100vh;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+
+        .signup-container{
+            width:100%;
+            max-width:450px;
+            padding:40px;
+            background:#151A2D;
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:20px;
+            box-shadow:0 20px 50px rgba(0,0,0,0.35);
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:10px;
+        }
+
+        .subtitle{
+            text-align:center;
+            color:#9AA4BF;
+            margin-bottom:30px;
+        }
+
+        label{
+            display:block;
+            margin-bottom:8px;
+            font-weight:500;
+        }
+
+        input{
+            width:100%;
+            padding:14px;
+            margin-bottom:18px;
+
+            border:1px solid #2A3352;
+            border-radius:12px;
+
+            background:#0F1324;
+            color:#E4E8F5;
+            outline:none;
+
+            transition:0.3s;
+        }
+
+        input:focus{
+            border-color:#5B8CFF;
+            box-shadow:0 0 0 3px rgba(91,140,255,0.2);
+        }
+
+        button{
+            width:100%;
+            padding:14px;
+
+            border:none;
+            border-radius:12px;
+
+            background:linear-gradient(
+                135deg,
+                #5B8CFF,
+                #7A5CFF
+            );
+
+            color:white;
+            font-size:1rem;
+            font-weight:600;
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        button:hover{
+            transform:translateY(-2px);
+            box-shadow:0 10px 25px rgba(91,140,255,0.3);
+        }
+
+        .flash{
+            background:rgba(255,82,82,0.15);
+            color:#ff8b8b;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:15px;
+            text-align:center;
+        }
+
+        .login-link{
+            text-align:center;
+            margin-top:20px;
+            color:#9AA4BF;
+        }
+
+        .login-link a{
+            color:#5B8CFF;
+            text-decoration:none;
+            font-weight:500;
+        }
+
+        .login-link a:hover{
+            text-decoration:underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="signup-container">
+
+        <h2>Create Account</h2>
+        <p class="subtitle">Start managing your expenses smarter.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="flash">
+                        {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('signup') }}" method="POST">
+
+            <label>Username</label>
+            <input type="text" name="username" required>
+
+            <label>Email</label>
+            <input type="email" name="email" required>
+
+            <label>Password</label>
+            <input type="password" name="password" required>
+
+            <button type="submit">
+                Create Account
+            </button>
+
+        </form>
+
+        <p class="login-link">
+            Already have an account?
+            <a href="{{ url_for('login') }}">
+                Log In
+            </a>
+        </p>
+
+    </div>
+
+</body>
+</html>

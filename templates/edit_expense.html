@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Edit Expense — ExpenseVault{% endblock %}
+
+{% block content %}
+
+<div class="form-page">
+    <div class="form-page-header">
+        <h1>Edit Expense <span class="id-chip">#{{ expense.expense_id }}</span></h1>
+        <p>Update the detail below and save</p>
+    </div>
+
+    <div class="form-card">
+        <form method="POST" action="{{ url_for('edit_expense', expense_id=expense.expense_id) }}">
+
+            <!-- category -->
+            <input type="hidden" name="category" id="selectedCategory" value="{{ expense.category_name }}">
+            <div class="cat-grid" id="catGrid">
+                {% set icons = {
+                    'Food':'🍔', 'Transport':'🚗', 'Shopping':'🛍', 'Housing':'🏠',
+                    'Healthcare':'💊', 'Entertainment':'🎬', 'Education':'📚', 'Other':'📦'
+                } %}
+                
+                {% for cat in categories %}
+                <button type="button" 
+                        class="cat-btn {{ 'selected' if (expense.category_name == cat.category_name) or (not expense.category_name and loop.first) }}"
+                        data-cat="{{ cat.category_name }}" 
+                        onclick="selectCat(this)">
+                    {{ icons.get(cat.category_name, '•') }} {{ cat.category_name }}
+                </button>
+                {% endfor %}
+            </div>
+
+            <div class="form-row">
+                <!-- amount -->
+                <div class="form-group">
+                    <label for="amount">Amount (USD)</label>
+                    <div class="amount-prefix">
+                        <span>$</span>
+                        <input type="number" id="amount" name="amount" required 
+                        placeholder="0.00" min="0.01" step="0.01" 
+                        value="{{ "%.2f"|format(expense.amount|float) }}">
+                    </div>
+                </div>
+
+                <!-- Datea -->
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" required 
+                        value="{{ expense.expense_date }}">
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description">Description
+                <span style="color:var(--muted)">(optional)</span></label>
+                <textarea id="description" name="description">{{ expense.description if expense.description else '' }}</textarea>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('all_expenses') }}" class="btn btn-ghost">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+function selectCat(buttonElement) {
+    const buttons = document.querySelectorAll('.cat-btn');
+    buttons.forEach(btn => btn.classList.remove('selected'));
+    
+    buttonElement.classList.add('selected');
+    
+    const categoryValue = buttonElement.getAttribute('data-cat');
+    // Double check that this ID matches the hidden input field's ID!
+    document.getElementById('selectedCategory').value = categoryValue; 
+}
+</script>
+{% endblock %}

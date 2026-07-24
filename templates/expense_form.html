@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Expenses - ExpenseVault{% endblock %}
+
+{% block content %}
+
+<div class="form-page">
+    <div class="form-page-header">
+        <h1>Add Expense</h1>
+        <p>Record a new item to your vault</p>
+    </div>
+
+    <div class="form-card">
+        <form method="POST" action="{{ url_for('add_expense') }}">
+
+         <div class="form-group">
+            <label>Category</label>
+            <select id="category" name="category" style="display: none;">
+                <option value="">-- Select Category --</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.category_name }}" {% if form.get('category') == cat.category_name %}selected{% endif %}>
+                        {{ cat.category_name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <div class="cat-grid" id="catGrid">
+                {% set icons = {
+                    'Food':'🍔', 'Transport':'🚗', 'Shopping':'🛍', 'Housing':'🏠',
+                    'Healthcare':'💊', 'Entertainment':'🎬', 'Education':'📚', 'Other':'📦'
+                } %}
+                
+                {% for cat in categories %}
+                <button type="button" 
+                        class="cat-btn {{ 'selected' if (form.get('category') == cat.category_name) or (not form.get('category') and loop.first) }}"
+                        data-cat="{{ cat.category_name }}" 
+                        onclick="selectCat(this)">
+                    {{ icons.get(cat.category_name, '•') }} {{ cat.category_name }}
+                </button>
+                {% endfor %}
+            </div>
+         </div>
+
+            <div class="form-row">
+                 <div class="form-group">
+                    <label for="amount">Amount (USD)</label>
+                    <div class="amount-prefix">
+                        <span>$</span>
+                        <input type="number" id="amount" name="amount" required placeholder="0.00" min="0.01" step="0.01" value="{{ form.get('amount', '') }}">
+                    </div>
+                 </div>
+
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" required value="{{ form.get('date', '') }}">
+                 </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description <span style="color:var(--muted)">(optional)</span></label>
+                <textarea name="description" id="description" placeholder="Any notes about this expense...">{{ form.get('description', '') }}</textarea>
+             </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('all_expenses') }}" class="btn btn-ghost">Cancel</a>
+                <button type="submit" class="btn btn-primary">Add Expense</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function selectCat(buttonElement) {
+    // 1. Get the category string value from the button data attribute
+    const selectedCategory = buttonElement.getAttribute('data-cat');
+    
+    // 2. Update the hidden native HTML dropdown value
+    const selectDropdown = document.getElementById('category');
+    if (selectDropdown) {
+        selectDropdown.value = selectedCategory;
+    }
+    
+    // 3. Update the UI styles (remove 'selected' class from all buttons, add to current one)
+    const buttons = document.querySelectorAll('.cat-btn');
+    buttons.forEach(btn => btn.classList.remove('selected'));
+    buttonElement.classList.add('selected');
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Look for whichever button has the 'selected' class on page load
+    const activeBtn = document.querySelector('.cat-btn.selected');
+    if (activeBtn) {
+        const selectDropdown = document.getElementById('category');
+        if (selectDropdown) {
+            selectDropdown.value = activeBtn.getAttribute('data-cat');
+        }
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Expense - ExpenseVault{% endblock %}
+
+
+{% block content %}
+
+<div class="page-title-row">
+    <h1>All Expenses</h1>
+    <span class="total-pill">
+        Showing {{ expenses|length }} entries . ${{ "%.2f"|format(total_filtered) }}
+    </span>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+    <div class="toolbar-left">
+        <!-- search -->
+         <form method="GET" action="{{ url_for('all_expenses') }}" style="display:contents">
+            <div class="search-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" name="search" placeholder="Search expenses..." value="{{ search }}" style="min-width:200px">
+            </div>
+        
+        <!-- Category filter -->
+        <select name="category" class="filter-select" onchange="this.form.submit()">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat.category_name }}" {{ 'selected' if selected_category == cat.category_name }}>
+                    {{ cat.category_name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- sort -->
+        <select name="sort" class="filter-select" onchange="this.form.submit()">
+            <option value="date_desc" {{ 'selected' if sort == 'date_desc' }}>Date ↓</option>
+            <option value="date_asc" {{ 'selected' if sort == 'date_asc' }}>Date ↑</option>
+            <option value="amount_desc" {{ 'selected' if sort == 'amount_desc' }}>Amount ↑</option>
+            <option value="amount_asc" {{ 'selected' if sort == 'amount_asc' }}>Amount ↓</option>
+        </select>
+
+        <button type="submit" class="btn btn-ghost">Apply</button>
+        {% if search or selected_category %}
+            <a href="{{ url_for('all_expenses') }}" class="btn btn-ghost">X Clear</a>
+        {% endif %}
+         </form>
+    </div>
+
+    <div class="toolbar-right">
+        <a href="{{ url_for('add_expense') }}" class="btn btn-primary">＋ Add Expense</a>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="table-card">
+    <table>
+        <thead>
+            <tr>
+                <th class="col-id">#</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th style="text-align:right">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if expenses %}
+                {% for e in expenses %}
+                <tr>
+                    <td class="col-id">{{ e.expense_id }}</td>
+                    <td><span class="badge badge-{{ e.category_name }}">{{ e.category_name }}</span></td>
+                    <td class="amount-cell">${{ "%.2f" |format(e.amount|float)}}</td>
+                    <td class="mono" style="color:var(--muted);font-size:.85rem">{{ e.expense_date }}</td>
+                    <td class="col-desc" title="{{ e.description }}">{{ e.description or '-' }}</td>
+                    <td>
+                        <div class="actions" style="justify-content: flex-end;">
+                            <a href="{{ url_for('edit_expense', expense_id=e.expense_id) }}"
+                            class="btn btn-teal btn-sm">✏ Edit</a>
+                            <form method="POST" action="{{ url_for('delete_expense', expense_id=e.expense_id) }}"
+                            onsubmit="return confirm('Delete « {{ e.description }} »?')">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑 Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr class="empty-row">
+                    <td colspan="6">
+                        {% if search or selected_category or sort != 'date_desc' %}
+                        No expenses match your filters.
+                        <a href="{{ url_for('all_expenses') }}" style="color:var(--accent)">Clear filters</a>
+                        {% else %}
+                        No expenses yet.
+                        <a href="{{ url_for('add_expense') }}" style="color: var(--accent);">Add one now</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}System Access Administration{% endblock %}
+
+{% block content %}
+<div class="admin-container" style="color: #dddddc; max-width: 1100px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div>
+            <h2 style="margin: 0;">System Access Administration</h2>
+            <p style="color: #6B7089; margin: 5px 0 20px 0; font-size: 0.95rem;">Manage user profiles, adjust system capabilities, and perform core data adjustments.</p>
+        </div>
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #EF4444; padding: 8px 15px; border-radius: 4px; color: #EF4444; font-size: 0.85rem; font-weight: bold;">
+            🛑 ROOT ACCESS MODE
+        </div>
+    </div>
+    <hr style="border-color: #252A3D; margin-bottom: 25px;">
+
+    <div style="background: #1d004c; border: 1px solid #252A3D; border-radius: 8px; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background: #161238; border-bottom: 2px solid #252A3D; color: #6B7089; font-size: 0.9rem;">
+                    <th style="padding: 15px;">User ID</th>
+                    <th style="padding: 15px;">Username</th>
+                    <th style="padding: 15px;">Email Identity Address</th>
+                    <th style="padding: 15px;">Assigned Identity Role</th>
+                    <th style="padding: 15px; text-align: right;">Destruction Controls</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr style="border-bottom: 1px solid #252A3D; background: {{ '#1a113a' if u.user_id == session.get('user_id') else 'transparent' }};">
+                    <td style="padding: 15px; font-family: monospace; color: #60A5FA;">#{{ u.user_id }}</td>
+                    
+                    <td style="padding: 15px; font-weight: bold;">
+                        {{ u.username }}
+                        {% if u.user_id == session.get('user_id') %}
+                            <span style="font-size: 0.75rem; color: #34D399; background: rgba(52, 211, 153, 0.1); padding: 2px 6px; border-radius: 4px; margin-left: 5px;">You</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td style="padding: 15px; color: #b5b7bd;">{{ u.email }}</td>
+                    
+                    <td style="padding: 15px;">
+                        <form action="{{ url_for('admin_assign_role', target_user_id=u.user_id) }}" method="POST" style="margin: 0;">
+                            <select name="role_id" onchange="this.form.submit()" 
+                                    {{ 'disabled' if u.user_id == session.get('user_id') }}
+                                    style="background: #181533; color: white; border: 1px solid #252A3D; padding: 6px 12px; border-radius: 4px; font-size: 0.9rem; cursor: pointer;">
+                                <option value="2" {{ 'selected' if u.role_id == 2 }}>Regular User</option>
+                                <option value="21" {{ 'selected' if u.role_id == 21 }}>Manager</option>
+                                <option value="1" {{ 'selected' if u.role_id == 1 }}>Admin</option>
+                            </select>
+                        </form>
+                    </td>
+                    
+                    <td style="padding: 15px; text-align: right;">
+                        {% if u.user_id != session.get('user_id') %}
+                        <form action="{{ url_for('admin_drop_account', target_user_id=u.user_id) }}" method="POST" 
+                              onsubmit="return confirm('CRITICAL ACCOUNT DELETION WARNING:\n\nAre you absolutely certain you want to destroy this user account?\nThis action will also wipe all linked expense histories permanently.');" style="margin: 0;">
+                            <button type="submit" style="background: transparent; color: #FF5470; border: 1px solid rgba(255, 84, 112, 0.2); padding: 6px 14px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; font-weight: 500; transition: all 0.2s;">
+                                Wipe Account
+                            </button>
+                        </form>
+                        {% else %}
+                        <span style="color: #6B7089; font-size: 0.85rem; font-style: italic; padding-right: 10px;">Protected Lock</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    tr:hover { background: rgba(255, 255, 255, 0.02) !important; }
+    button:hover { background: #FF5470 !important; color: white !important; }
+</style>
+{% endblock %}
